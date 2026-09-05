@@ -1,173 +1,343 @@
 
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="auto">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional WhatsApp & PDF Invoice Maker</title>
-    <meta name="description" content="मुफ्त व्हाट्सएप बिल और इनवॉइस बनाएं। ऑटो-बिल नंबर, ऑटो-सीरियल नंबर और PDF डाउनलोड सुविधा।">
+    <title>Global Smart Invoice & PDF Generator</title>
+    
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- html2pdf Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
-            --primary: #075e54;
-            --primary-dark: #054840;
-            --secondary: #128c7e;
-            --accent: #25d366;
-            --bg-grad: linear-gradient(135deg, #0d1b2a, #1b263b, #415a77);
-            --card-bg: #ffffff;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --secondary-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            --wa-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --pdf-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --bg-color: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.96);
             --text-dark: #0f172a;
             --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-lg: 24px;
+            --radius-md: 12px;
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-        body { background: var(--bg-grad); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px 10px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
         
-        .card { background: var(--card-bg); padding: 30px 25px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 650px; }
+        body { 
+            background: #0f172a; 
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.25) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.25) 0px, transparent 50%);
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 25px 12px; 
+            color: var(--text-dark);
+        }
         
-        .header { text-align: center; margin-bottom: 25px; border-bottom: 3px solid #f1f5f9; padding-bottom: 15px; }
-        .header h2 { color: var(--primary); font-size: 28px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
+        .card { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(16px);
+            padding: 35px 30px; 
+            border-radius: var(--radius-lg); 
+            box-shadow: var(--shadow-xl); 
+            width: 100%; 
+            max-width: 720px; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Language Selector Banner */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+        }
+
+        .lang-badge {
+            font-size: 13px;
+            font-weight: 700;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lang-select-wrapper select {
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            background: white;
+            color: #334155;
+        }
+
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; }
+        .header h2 { 
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 30px; 
+            font-weight: 800; 
+            letter-spacing: -0.5px; 
+            margin-bottom: 6px; 
+        }
         .header p { color: var(--text-muted); font-size: 14px; font-weight: 600; }
 
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        @media (max-width: 550px) { .form-grid { grid-template-columns: 1fr; } }
 
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        input, textarea { width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; font-weight: 500; color: #334155; background-color: #f8fafc; outline: none; transition: all 0.2s ease; }
-        input:focus, textarea:focus { border-color: var(--accent); background-color: #ffffff; box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.15); }
+        input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: var(--radius-md); 
+            font-size: 14px; 
+            font-weight: 600; 
+            color: #1e293b; 
+            background-color: #f8fafc; 
+            outline: none; 
+            transition: all 0.25s ease; 
+        }
+        input:focus { 
+            border-color: #6366f1; 
+            background-color: #ffffff; 
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); 
+        }
 
-        /* Items Table in Form */
-        .items-section { margin-top: 20px; margin-bottom: 20px; }
-        .items-section-title { font-weight: 900; color: var(--text-dark); font-size: 15px; text-transform: uppercase; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        /* Items Section */
+        .items-section { margin-top: 25px; margin-bottom: 20px; }
+        .items-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .items-title { font-weight: 800; color: var(--text-dark); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .item-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        .item-table th { background: #f1f5f9; color: var(--text-dark); font-weight: 800; text-transform: uppercase; font-size: 12px; padding: 10px; text-align: left; border-radius: 6px; }
+        .item-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        .item-table th { background: #f1f5f9; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 10px; text-align: left; border-radius: 6px; }
         .item-table td { padding: 6px 4px; }
-        
-        .item-row input { padding: 8px 10px; font-size: 13px; }
-        .btn-remove { background: #ef4444; color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-add { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .btn-add:hover { background: #0369a1; }
+        .item-row input { padding: 9px 12px; font-size: 13px; }
 
-        .total-box { background: #ecfdf5; border: 2px solid #a7f3d0; border-radius: 12px; padding: 15px; text-align: right; margin-bottom: 20px; }
-        .total-box label { color: #065f46; font-size: 16px; font-weight: 900; margin: 0; }
-        .total-box .amount { font-size: 24px; font-weight: 900; color: #047857; margin-top: 4px; }
+        .btn-remove { background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-remove:hover { background: #ef4444; color: white; }
+        
+        .btn-add { 
+            background: #eff6ff; 
+            color: #2563eb; 
+            border: 1px dashed #2563eb; 
+            padding: 9px 18px; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            font-size: 13px; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-add:hover { background: #2563eb; color: white; border-style: solid; }
+
+        .total-card { 
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); 
+            border: 2px solid #86efac; 
+            border-radius: 16px; 
+            padding: 18px 24px; 
+            text-align: right; 
+            margin-bottom: 25px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-card label { color: #166534; font-size: 14px; font-weight: 800; margin: 0; }
+        .total-card .amount { font-size: 28px; font-weight: 900; color: #15803d; }
 
         /* Action Buttons */
-        .btn-wa { width: 100%; background: linear-gradient(135deg, #25d366, #128c7e); color: white; border: none; padding: 14px; font-size: 16px; font-weight: 900; letter-spacing: 0.5px; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 18px rgba(37, 211, 102, 0.3); transition: 0.2s; }
-        .btn-pdf { width: 100%; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 14px; font-size: 16px; font-weight: 900; letter-spacing: 0.5px; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 18px rgba(2, 132, 199, 0.3); transition: 0.2s; }
-        .btn-wa:active, .btn-pdf:active { transform: scale(0.98); }
+        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 500px) { .actions-grid { grid-template-columns: 1fr; } }
 
-        /* Hidden Printable Area for PDF */
-        #pdf-render-wrapper { position: fixed; top: -9999px; left: -9999px; width: 750px; }
-        #pdf-render-area { background: #ffffff; padding: 40px; box-sizing: border-box; color: #1e293b; }
+        .btn-action { 
+            width: 100%; 
+            color: white; 
+            border: none; 
+            padding: 16px; 
+            font-size: 15px; 
+            font-weight: 800; 
+            border-radius: var(--radius-md); 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease; 
+        }
+        .btn-wa { background: var(--wa-gradient); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); }
+        .btn-pdf { background: var(--pdf-gradient); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); }
+        .btn-action:hover { transform: translateY(-2px); filter: brightness(1.05); }
+        .btn-action:active { transform: translateY(0); }
 
-        /* PDF Colorful Styling */
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #075e54; padding-bottom: 20px; margin-bottom: 20px; }
-        .pdf-logo { max-width: 140px; max-height: 80px; object-fit: contain; }
+        /* Hidden PDF Render Container */
+        #pdf-render-container {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 780px;
+            background: #ffffff;
+        }
+
+        #pdf-render-area {
+            background: #ffffff;
+            padding: 45px;
+            box-sizing: border-box;
+            color: #0f172a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Modern PDF Design */
+        .pdf-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #4f46e5; padding-bottom: 25px; margin-bottom: 25px; }
+        .pdf-logo { max-width: 150px; max-height: 85px; object-fit: contain; }
         .pdf-title-block { text-align: right; }
-        .pdf-title-block h1 { color: #075e54; font-size: 32px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
-        .pdf-meta { background: #f8fafc; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 800; color: #475569; margin-top: 6px; display: inline-block; border: 1px solid #e2e8f0; }
+        .pdf-title-block h1 { color: #4f46e5; font-size: 34px; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
+        .pdf-meta-badge { background: #eef2ff; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #4f46e5; margin-top: 8px; display: inline-block; border: 1px solid #c7d2fe; }
 
-        .pdf-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; background: #f1f5f9; padding: 15px; border-radius: 10px; border-left: 5px solid #128c7e; }
-        .pdf-info-box h3 { color: #075e54; font-size: 14px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-        .pdf-info-box p { font-size: 14px; color: #334155; font-weight: 600; margin: 2px 0; }
+        .pdf-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; background: #f8fafc; padding: 20px; border-radius: 14px; border-left: 6px solid #4f46e5; }
+        .pdf-info-box h3 { color: #4f46e5; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .pdf-info-box p { font-size: 14px; color: #334155; font-weight: 600; margin: 3px 0; }
 
-        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-        .pdf-table th { background: linear-gradient(135deg, #075e54, #128c7e); color: #ffffff; padding: 12px 10px; text-align: left; font-size: 13px; font-weight: 900; text-transform: uppercase; }
-        .pdf-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; font-size: 13px; color: #334155; font-weight: 600; }
+        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .pdf-table th { background: #4f46e5; color: #ffffff; padding: 12px 14px; text-align: left; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+        .pdf-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 14px; font-size: 13px; color: #334155; font-weight: 600; }
         .pdf-table tr:nth-child(even) { background-color: #f8fafc; }
 
-        .pdf-summary { display: flex; justify-content: flex-end; margin-bottom: 30px; }
-        .pdf-total-card { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #10b981; padding: 15px 25px; border-radius: 10px; text-align: right; }
-        .pdf-total-card span { display: block; font-size: 13px; font-weight: 900; color: #065f46; text-transform: uppercase; }
-        .pdf-total-card h2 { font-size: 26px; font-weight: 900; color: #047857; margin: 0; }
+        .pdf-summary { display: flex; justify-content: flex-end; margin-bottom: 35px; }
+        .pdf-total-card { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 18px 30px; border-radius: 14px; text-align: right; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2); }
+        .pdf-total-card span { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; opacity: 0.9; }
+        .pdf-total-card h2 { font-size: 28px; font-weight: 900; margin-top: 2px; }
 
-        .pdf-footer { text-align: center; font-size: 14px; color: #075e54; font-weight: 900; border-top: 2px dashed #cbd5e0; padding-top: 20px; letter-spacing: 0.5px; }
+        .pdf-footer { text-align: center; font-size: 13px; color: #64748b; font-weight: 700; border-top: 2px dashed #e2e8f0; padding-top: 20px; }
     </style>
 </head>
 <body>
 
     <div class="card">
+        <!-- Automatic Multi-Language Detection Banner -->
+        <div class="top-bar">
+            <div class="lang-badge">
+                <i class="fa-solid fa-globe"></i>
+                <span id="detectedLangText">Detecting Location & Language...</span>
+            </div>
+            <div class="lang-select-wrapper">
+                <select id="langSelect" onchange="changeLanguage(this.value)">
+                    <option value="hi">हिंदी + English</option>
+                    <option value="en">English Only</option>
+                    <option value="es">Español + English</option>
+                    <option value="ar">العربية + English</option>
+                    <option value="fr">Français + English</option>
+                </select>
+            </div>
+        </div>
+
         <div class="header">
-            <h2>📲 Premium WhatsApp & PDF Invoice</h2>
-            <p>ऑटो-बिल नंबर, ऑटो-सीरियल नंबर और लोगो सपोर्ट</p>
+            <h2 id="lblTitle">Smart Invoice Generator</h2>
+            <p id="lblSubtitle">Bilingual, Auto-Serial & Professional PDF Solution</p>
         </div>
 
         <div class="form-grid">
             <div class="input-group">
-                <label>🧾 इनवॉइस/बिल नंबर:</label>
-                <input type="text" id="billNo" readonly style="background:#e2e8f0; font-weight:bold; color:#0f172a;">
+                <label id="lblBillNo">Invoice Number / बिल नंबर</label>
+                <input type="number" id="billNo" style="font-weight:bold; color:#4f46e5;" onchange="saveCurrentBillNo()">
             </div>
             <div class="input-group">
-                <label>📅 दिनांक व समय:</label>
-                <input type="text" id="billDateTime" readonly style="background:#e2e8f0; font-weight:bold; color:#0f172a;">
+                <label id="lblDate">Date & Time / दिनांक व समय</label>
+                <input type="text" id="billDateTime" readonly style="background:#f1f5f9; color:#475569;">
             </div>
         </div>
 
         <div class="input-group">
-            <label>🖼️ दुकान का लोगो (Optional - ऐच्छिक):</label>
+            <label id="lblLogo">Shop Logo / दुकान का लोगो (Optional)</label>
             <input type="file" id="logoInput" accept="image/*" onchange="loadLogo(event)">
         </div>
 
         <div class="form-grid">
             <div class="input-group">
-                <label>🏪 दुकान का नाम:</label>
-                <input type="text" id="shopName" placeholder="उदा. PUSHPIT PHARMA">
+                <label id="lblShopName">Shop Name / दुकान का नाम</label>
+                <input type="text" id="shopName" placeholder="e.g. Pushpit Pharma / पुष्पित फार्मा">
             </div>
             <div class="input-group">
-                <label>📞 दुकान का नंबर (Optional):</label>
-                <input type="text" id="shopPhone" placeholder="उदा. 9876543210">
+                <label id="lblShopPhone">Shop Phone / दुकान का फ़ोन</label>
+                <input type="text" id="shopPhone" placeholder="e.g. +91 9876543210">
             </div>
         </div>
 
         <div class="form-grid">
             <div class="input-group">
-                <label>👤 ग्राहक का नाम:</label>
-                <input type="text" id="custName" placeholder="उदा. Amit ji">
+                <label id="lblCustName">Customer Name / ग्राहक का नाम</label>
+                <input type="text" id="custName" placeholder="e.g. Amit Kumar">
             </div>
             <div class="input-group">
-                <label>📱 ग्राहक का मोबाइल नंबर:</label>
-                <input type="text" id="custPhone" placeholder="उदा. 9123456789">
+                <label id="lblCustPhone">Customer Phone / ग्राहक मोबाइल</label>
+                <input type="text" id="custPhone" placeholder="e.g. +91 9123456789">
             </div>
         </div>
 
-        <!-- Dynamic Items Table -->
+        <!-- Items Table -->
         <div class="items-section">
-            <div class="items-section-title">
-                <span>📦 सामान की जानकारी (Items List)</span>
-                <button type="button" class="btn-add" onclick="addItemRow()">+ नया सामान जोड़ें</button>
+            <div class="items-header">
+                <span class="items-title" id="lblItemsTitle">Items List / विवरण सूची</span>
+                <button type="button" class="btn-add" onclick="addItemRow()">
+                    <i class="fa-solid fa-plus"></i> <span id="lblBtnAdd">Add Item</span>
+                </button>
             </div>
 
             <table class="item-table">
                 <thead>
                     <tr>
-                        <th style="width: 10%;">S.N.</th>
-                        <th style="width: 45%;">आइटम / विवरण</th>
-                        <th style="width: 20%;">मात्रा (Qty)</th>
-                        <th style="width: 20%;">मूल्य (₹)</th>
-                        <th style="width: 5%;"></th>
+                        <th style="width: 8%;">S.N.</th>
+                        <th style="width: 44%;" id="lblThItem">Item / विवरण</th>
+                        <th style="width: 20%;" id="lblThQty">Qty / मात्रा</th>
+                        <th style="width: 22%;" id="lblThPrice">Price / मूल्य</th>
+                        <th style="width: 6%;"></th>
                     </tr>
                 </thead>
                 <tbody id="itemRowsContainer">
-                    <!-- Dynamic Rows Will Appear Here -->
                 </tbody>
             </table>
         </div>
 
-        <div class="total-box">
-            <label>💰 कुल राशि (TOTAL AMOUNT):</label>
+        <div class="total-card">
+            <label id="lblTotalAmt">Total Amount / कुल राशि:</label>
             <div class="amount">₹<span id="displayTotal">0</span></div>
         </div>
 
-        <button class="btn-wa" onclick="sendWhatsApp()">💬 WhatsApp पर भेजें</button>
-        <button class="btn-pdf" onclick="generatePDF()">📄 PDF डाउनलोड करें</button>
+        <div class="actions-grid">
+            <button class="btn-action btn-wa" onclick="sendWhatsApp()">
+                <i class="fa-brands fa-whatsapp" style="font-size:20px;"></i>
+                <span id="lblBtnWA">Send WhatsApp</span>
+            </button>
+            <button class="btn-action btn-pdf" onclick="generatePDF()">
+                <i class="fa-solid fa-file-pdf" style="font-size:20px;"></i>
+                <span id="lblBtnPDF">Download PDF</span>
+            </button>
+        </div>
     </div>
 
-    <!-- Printable Area for PDF -->
-    <div id="pdf-render-wrapper">
+    <!-- Hidden Printable Area for PDF Generation -->
+    <div id="pdf-render-container">
         <div id="pdf-render-area">
             <div class="pdf-header">
                 <div>
@@ -175,32 +345,32 @@
                 </div>
                 <div class="pdf-title-block">
                     <h1 id="pdf-shop-title">INVOICE</h1>
-                    <div class="pdf-meta">
-                        INVOICE NO: <span id="pdf-bill-no"></span> | DATE: <span id="pdf-date-time"></span>
+                    <div class="pdf-meta-badge">
+                        <span id="pdfLblInvNo">INVOICE NO</span>: <span id="pdf-bill-no">#1</span> | <span id="pdf-date-time"></span>
                     </div>
                 </div>
             </div>
 
             <div class="pdf-info-grid">
                 <div class="pdf-info-box">
-                    <h3>🏪 दुकान का विवरण (Billed By):</h3>
+                    <h3 id="pdfLblBilledBy">Billed By / प्रेषक:</h3>
                     <p><strong id="pdf-shop-name-disp"></strong></p>
                     <p id="pdf-shop-phone-row" style="display:none;">📞 <span id="pdf-shop-phone-disp"></span></p>
                 </div>
                 <div class="pdf-info-box">
-                    <h3>👤 ग्राहक का विवरण (Billed To):</h3>
-                    <p>नाम: <strong id="pdf-cust-name-disp"></strong></p>
-                    <p id="pdf-cust-phone-row" style="display:none;">मोबाइल: <span id="pdf-cust-phone-disp"></span></p>
+                    <h3 id="pdfLblBilledTo">Billed To / प्राप्तकर्ता:</h3>
+                    <p><strong id="pdf-cust-name-disp"></strong></p>
+                    <p id="pdf-cust-phone-row" style="display:none;">📱 <span id="pdf-cust-phone-disp"></span></p>
                 </div>
             </div>
 
             <table class="pdf-table">
                 <thead>
                     <tr>
-                        <th style="width: 10%;">क्र.सं.</th>
-                        <th style="width: 50%;">सामान का नाम (Particulars)</th>
-                        <th style="width: 20%;">मात्रा (Qty)</th>
-                        <th style="width: 20%;">मूल्य (Amount)</th>
+                        <th style="width: 10%;">#</th>
+                        <th style="width: 50%;" id="pdfThDesc">Description / सामान का नाम</th>
+                        <th style="width: 20%;" id="pdfThQty">Qty / मात्रा</th>
+                        <th style="width: 20%;" id="pdfThAmt">Amount / मूल्य</th>
                     </tr>
                 </thead>
                 <tbody id="pdf-table-body">
@@ -209,13 +379,13 @@
 
             <div class="pdf-summary">
                 <div class="pdf-total-card">
-                    <span>कुल राशि (TOTAL AMOUNT)</span>
+                    <span id="pdfLblTotal">Total Amount / कुल राशि</span>
                     <h2>₹<span id="pdf-total-amt">0</span></h2>
                 </div>
             </div>
 
-            <div class="pdf-footer">
-                THANK YOU FOR YOUR BUSINESS! VISIT AGAIN 🙏✨
+            <div class="pdf-footer" id="pdfLblFooter">
+                Thank you for your business! / आपके व्यापार के लिए धन्यवाद! 🙏✨
             </div>
         </div>
     </div>
@@ -223,19 +393,201 @@
     <script>
         let logoBase64 = "";
 
-        // Auto Generate Bill Number & Date-Time on Page Load
-        window.onload = function() {
-            let randomNo = "INV-" + Math.floor(100000 + Math.random() * 900000);
-            document.getElementById('billNo').value = randomNo;
+        // Multi-Language Dictionary (English + Native Dual Display)
+        const i18n = {
+            hi: {
+                title: "Smart Invoice Generator",
+                subtitle: "द्विभाषी (Bilingual), ऑटो-सीरियल और प्रीमियम PDF",
+                billNo: "Invoice Number / बिल नंबर",
+                date: "Date & Time / दिनांक व समय",
+                logo: "Shop Logo / दुकान का लोगो (ऐच्छिक)",
+                shopName: "Shop Name / दुकान का नाम",
+                shopPhone: "Shop Phone / दुकान का नंबर",
+                custName: "Customer Name / ग्राहक का नाम",
+                custPhone: "Customer Phone / ग्राहक मोबाइल",
+                itemsTitle: "Items List / विवरण सूची",
+                btnAdd: "Add Item / सामान जोड़ें",
+                thItem: "Item / विवरण",
+                thQty: "Qty / मात्रा",
+                thPrice: "Price / मूल्य",
+                totalAmt: "Total Amount / कुल राशि:",
+                btnWA: "WhatsApp पर भेजें",
+                btnPDF: "PDF डाउनलोड करें",
+                pdfBilledBy: "Billed By / प्रेषक:",
+                pdfBilledTo: "Billed To / ग्राहक:",
+                pdfFooter: "Thank you for your business! / आपके व्यापार के लिए धन्यवाद! 🙏✨"
+            },
+            en: {
+                title: "Smart Invoice Generator",
+                subtitle: "Professional, Auto-Serial & PDF Solution",
+                billNo: "Invoice Number",
+                date: "Date & Time",
+                logo: "Shop Logo (Optional)",
+                shopName: "Shop Name",
+                shopPhone: "Shop Phone",
+                custName: "Customer Name",
+                custPhone: "Customer Phone",
+                itemsTitle: "Items List",
+                btnAdd: "Add Item",
+                thItem: "Item Description",
+                thQty: "Qty",
+                thPrice: "Price",
+                totalAmt: "Total Amount:",
+                btnWA: "Send via WhatsApp",
+                btnPDF: "Download PDF",
+                pdfBilledBy: "Billed By:",
+                pdfBilledTo: "Billed To:",
+                pdfFooter: "Thank you for your business! Visit Again 🙏✨"
+            },
+            es: {
+                title: "Smart Invoice / Factura Inteligente",
+                subtitle: "Bilingual, Auto-Serial & Premium PDF",
+                billNo: "Invoice No / Nº Factura",
+                date: "Date & Time / Fecha y Hora",
+                logo: "Shop Logo / Logo de la Tienda",
+                shopName: "Shop Name / Nombre de la Tienda",
+                shopPhone: "Shop Phone / Teléfono",
+                custName: "Customer / Nombre del Cliente",
+                custPhone: "Phone / Teléfono del Cliente",
+                itemsTitle: "Items List / Lista de Artículos",
+                btnAdd: "Add Item / Añadir Artículo",
+                thItem: "Item / Descripción",
+                thQty: "Qty / Cantidad",
+                thPrice: "Price / Precio",
+                totalAmt: "Total Amount / Monto Total:",
+                btnWA: "Send WhatsApp / Enviar WhatsApp",
+                btnPDF: "Download PDF / Descargar PDF",
+                pdfBilledBy: "Billed By / Emitido Por:",
+                pdfBilledTo: "Billed To / Facturado A:",
+                pdfFooter: "Thank you for your business! / ¡Gracias por su compra! 🙏✨"
+            },
+            ar: {
+                title: "Smart Invoice / فاتورة ذكية",
+                subtitle: "Bilingual, Auto-Serial & PDF Solution",
+                billNo: "Invoice No / رقم الفاتورة",
+                date: "Date & Time / التاريخ والوقت",
+                logo: "Shop Logo / شعار المحل",
+                shopName: "Shop Name / اسم المحل",
+                shopPhone: "Shop Phone / رقم الهاتف",
+                custName: "Customer / اسم العميل",
+                custPhone: "Customer Phone / رقم العميل",
+                itemsTitle: "Items List / قائمة المواد",
+                btnAdd: "Add Item / إضافة عنصر",
+                thItem: "Item / الوصف",
+                thQty: "Qty / الكمية",
+                thPrice: "Price / السعر",
+                totalAmt: "Total Amount / المجموع الكلي:",
+                btnWA: "WhatsApp / إرسال عبر واتساب",
+                btnPDF: "PDF / تحميل الفاتورة",
+                pdfBilledBy: "Billed By / صادر من:",
+                pdfBilledTo: "Billed To / الفاتورة إلى:",
+                pdfFooter: "Thank you for your business! / شكرا لتعاملكم معنا! 🙏✨"
+            },
+            fr: {
+                title: "Smart Invoice / Facture Intelligente",
+                subtitle: "Bilingual, Auto-Serial & PDF Solution",
+                billNo: "Invoice No / Nº de Facture",
+                date: "Date & Time / Date et Heure",
+                logo: "Shop Logo / Logo du Magasin",
+                shopName: "Shop Name / Nom du Magasin",
+                shopPhone: "Shop Phone / Téléphone",
+                custName: "Customer / Nom du Client",
+                custPhone: "Customer Phone / Téléphone Client",
+                itemsTitle: "Items List / Liste des Articles",
+                btnAdd: "Add Item / Ajouter un Article",
+                thItem: "Item / Description",
+                thQty: "Qty / Quantité",
+                thPrice: "Price / Prix",
+                totalAmt: "Total Amount / Montant Total:",
+                btnWA: "Send WhatsApp / Envoyer WhatsApp",
+                btnPDF: "Download PDF / Télécharger PDF",
+                pdfBilledBy: "Billed By / Émis Par:",
+                pdfBilledTo: "Billed To / Facturé À:",
+                pdfFooter: "Thank you for your business! / Merci pour votre confiance! 🙏✨"
+            }
+        };
 
+        window.onload = function() {
+            // Auto Bill Number Setup (Starts from 1)
+            let currentBillNo = localStorage.getItem('invoice_bill_counter');
+            if(!currentBillNo) {
+                currentBillNo = 1;
+            }
+            document.getElementById('billNo').value = currentBillNo;
+
+            // Date Time Format
             let now = new Date();
             let formattedDateTime = now.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + " " + 
                                     now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
             document.getElementById('billDateTime').value = formattedDateTime;
 
-            // Add First Default Item Row
             addItemRow();
+
+            // Automatic Country & Language Detection via Free API
+            detectLocationAndLanguage();
         };
+
+        function detectLocationAndLanguage() {
+            fetch('https://ipapi.co/json/')
+                .then(res => res.json())
+                .then(data => {
+                    let country = data.country_name || "Global";
+                    let langCode = (data.languages || "en").split(',')[0].substring(0, 2);
+                    
+                    document.getElementById('detectedLangText').innerText = `${country} (${langCode.toUpperCase()}) Detected`;
+
+                    if(i18n[langCode]) {
+                        document.getElementById('langSelect').value = langCode;
+                        changeLanguage(langCode);
+                    } else {
+                        // Default to Dual English + Hindi if code not mapped
+                        document.getElementById('langSelect').value = "hi";
+                        changeLanguage("hi");
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('detectedLangText').innerText = "Global (Auto Language Mode)";
+                    changeLanguage("hi");
+                });
+        }
+
+        function changeLanguage(lang) {
+            const data = i18n[lang] || i18n['hi'];
+            document.getElementById('lblTitle').innerText = data.title;
+            document.getElementById('lblSubtitle').innerText = data.subtitle;
+            document.getElementById('lblBillNo').innerText = data.billNo;
+            document.getElementById('lblDate').innerText = data.date;
+            document.getElementById('lblLogo').innerText = data.logo;
+            document.getElementById('lblShopName').innerText = data.shopName;
+            document.getElementById('lblShopPhone').innerText = data.shopPhone;
+            document.getElementById('lblCustName').innerText = data.custName;
+            document.getElementById('lblCustPhone').innerText = data.custPhone;
+            document.getElementById('lblItemsTitle').innerText = data.itemsTitle;
+            document.getElementById('lblBtnAdd').innerText = data.btnAdd;
+            document.getElementById('lblThItem').innerText = data.thItem;
+            document.getElementById('lblThQty').innerText = data.thQty;
+            document.getElementById('lblThPrice').innerText = data.thPrice;
+            document.getElementById('lblTotalAmt').innerText = data.totalAmt;
+            document.getElementById('lblBtnWA').innerText = data.btnWA;
+            document.getElementById('lblBtnPDF').innerText = data.btnPDF;
+
+            // PDF Elements Translation
+            document.getElementById('pdfLblBilledBy').innerText = data.pdfBilledBy;
+            document.getElementById('pdfLblBilledTo').innerText = data.pdfBilledTo;
+            document.getElementById('pdfLblFooter').innerText = data.pdfFooter;
+        }
+
+        function saveCurrentBillNo() {
+            let val = parseInt(document.getElementById('billNo').value) || 1;
+            localStorage.setItem('invoice_bill_counter', val);
+        }
+
+        function incrementBillNo() {
+            let val = parseInt(document.getElementById('billNo').value) || 1;
+            let nextVal = val + 1;
+            document.getElementById('billNo').value = nextVal;
+            localStorage.setItem('invoice_bill_counter', nextVal);
+        }
 
         function loadLogo(event) {
             const reader = new FileReader();
@@ -260,11 +612,11 @@
             const tr = document.createElement('tr');
             tr.className = 'item-row';
             tr.innerHTML = `
-                <td style="font-weight:bold; text-align:center;" class="sn-cell">${rowCount}</td>
-                <td><input type="text" class="item-desc" placeholder="सामान का नाम" oninput="calculateTotal()"></td>
-                <td><input type="text" class="item-qty" placeholder="1 kg/nos" oninput="calculateTotal()"></td>
+                <td style="font-weight:700; text-align:center; color:#64748b;" class="sn-cell">${rowCount}</td>
+                <td><input type="text" class="item-desc" placeholder="Item Name / विवरण" oninput="calculateTotal()"></td>
+                <td><input type="text" class="item-qty" placeholder="1 nos/kg" oninput="calculateTotal()"></td>
                 <td><input type="number" class="item-price" placeholder="0" oninput="calculateTotal()"></td>
-                <td><button type="button" class="btn-remove" onclick="removeItemRow(this)">×</button></td>
+                <td><button type="button" class="btn-remove" onclick="removeItemRow(this)"><i class="fa-solid fa-xmark"></i></button></td>
             `;
             container.appendChild(tr);
             updateSerialNumbers();
@@ -307,7 +659,7 @@
                 if(desc || price) {
                     itemsList.push({
                         sn: index + 1,
-                        desc: desc || "N/A",
+                        desc: desc || "Item",
                         qty: qty || "1",
                         price: price || "0"
                     });
@@ -319,9 +671,9 @@
         function sendWhatsApp() {
             let billNo = document.getElementById('billNo').value;
             let dateTime = document.getElementById('billDateTime').value;
-            let shop = document.getElementById('shopName').value.trim() || "OUR SHOP";
+            let shop = document.getElementById('shopName').value.trim() || "OUR STORE";
             let shopPhone = document.getElementById('shopPhone').value.trim();
-            let cust = document.getElementById('custName').value.trim() || "Customer";
+            let cust = document.getElementById('custName').value.trim() || "Valued Customer";
             let custPhone = document.getElementById('custPhone').value.trim();
             let total = document.getElementById('displayTotal').innerText;
 
@@ -333,22 +685,23 @@
             });
 
             let shopPhoneTxt = shopPhone ? `📞 Contact: ${shopPhone}%0A` : '';
-            let custPhoneTxt = custPhone ? `📱 Mobile: ${custPhone}%0A` : '';
+            let custPhoneTxt = custPhone ? `📱 Phone: ${custPhone}%0A` : '';
 
             let msg = `🧾 *--- ${shop.toUpperCase()} ---*%0A` +
                       `${shopPhoneTxt}` +
                       `-------------------------------------------%0A` +
-                      `📌 *Bill No:* ${billNo}%0A` +
-                      `📅 *Date/Time:* ${dateTime}%0A` +
+                      `📌 *Invoice No:* #${billNo}%0A` +
+                      `📅 *Date:* ${dateTime}%0A` +
                       `👤 *Customer:* ${cust}%0A` +
                       `${custPhoneTxt}` +
                       `-------------------------------------------%0A` +
-                      `📦 *ITEMS PURCHASED:*%0A%0A` +
+                      `📦 *PURCHASED ITEMS:*%0A%0A` +
                       `${itemsFormatted}` +
                       `-------------------------------------------%0A` +
                       `💵 *TOTAL AMOUNT:* ₹${total}%0A%0A` +
-                      `*THANK YOU FOR YOUR BUSINESS! VISIT AGAIN* 🙏✨`;
+                      `*THANK YOU FOR YOUR BUSINESS!* 🙏✨`;
 
+            incrementBillNo();
             window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
         }
 
@@ -362,7 +715,7 @@
             let total = document.getElementById('displayTotal').innerText;
 
             document.getElementById('pdf-shop-title').innerText = shop.toUpperCase();
-            document.getElementById('pdf-bill-no').innerText = billNo;
+            document.getElementById('pdf-bill-no').innerText = "#" + billNo;
             document.getElementById('pdf-date-time').innerText = dateTime;
 
             document.getElementById('pdf-shop-name-disp').innerText = shop;
@@ -381,7 +734,6 @@
                 document.getElementById('pdf-cust-phone-row').style.display = 'none';
             }
 
-            // Fill PDF Table Rows
             let items = getItemsData();
             let tbody = document.getElementById('pdf-table-body');
             tbody.innerHTML = "";
@@ -403,13 +755,15 @@
 
             const opt = {
                 margin:       [8, 8, 8, 8],
-                filename:     `${shop.replace(/\s+/g, '_')}_${billNo}.pdf`,
+                filename:     `${shop.replace(/\s+/g, '_')}_Bill_${billNo}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(element).save().then(() => {
+                incrementBillNo();
+            });
         }
     </script>
 </body>
