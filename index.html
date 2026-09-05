@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="auto">
 <head>
@@ -6,11 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Auto-Calculating Invoice Generator</title>
     
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- html2pdf Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -185,7 +183,6 @@
         .btn-pdf { background: var(--pdf-gradient); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); }
         .btn-action:hover { transform: translateY(-2px); filter: brightness(1.05); }
 
-        /* PDF printable styles */
         #pdf-render-container { position: absolute; left: -9999px; top: -9999px; width: 780px; background: #ffffff; }
         #pdf-render-area { background: #ffffff; padding: 45px; color: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; }
         .pdf-header { display: flex; justify-content: space-between; border-bottom: 3px solid #4f46e5; padding-bottom: 25px; margin-bottom: 25px; }
@@ -213,15 +210,12 @@
         <div class="top-bar">
             <div class="lang-badge">
                 <i class="fa-solid fa-globe"></i>
-                <span id="detectedLangText">Detecting Location & Language...</span>
+                <span id="detectedLangText">Location & Language...</span>
             </div>
             <div class="lang-select-wrapper">
                 <select id="langSelect" onchange="changeLanguage(this.value)">
                     <option value="hi">हिंदी + English</option>
                     <option value="en">English Only</option>
-                    <option value="es">Español + English</option>
-                    <option value="ar">العربية + English</option>
-                    <option value="fr">Français + English</option>
                 </select>
             </div>
         </div>
@@ -250,26 +244,25 @@
         <div class="form-grid">
             <div class="input-group">
                 <label id="lblShopName">Shop Name / दुकान का नाम</label>
-                <input type="text" id="shopName" placeholder="e.g. Pushpit Pharma / पुष्पित फार्मा">
+                <input type="text" id="shopName" placeholder="Pushpit Pharma / पुष्पित फार्मा">
             </div>
             <div class="input-group">
                 <label id="lblShopPhone">Shop Phone / दुकान का फ़ोन</label>
-                <input type="text" id="shopPhone" placeholder="e.g. +91 9876543210">
+                <input type="text" id="shopPhone" placeholder="9235793696">
             </div>
         </div>
 
         <div class="form-grid">
             <div class="input-group">
                 <label id="lblCustName">Customer Name / ग्राहक का नाम</label>
-                <input type="text" id="custName" placeholder="e.g. Amit Kumar">
+                <input type="text" id="custName" placeholder="Amit Kumar">
             </div>
             <div class="input-group">
                 <label id="lblCustPhone">Customer Phone / ग्राहक मोबाइल</label>
-                <input type="text" id="custPhone" placeholder="e.g. +91 9123456789">
+                <input type="text" id="custPhone" placeholder="9123456789">
             </div>
         </div>
 
-        <!-- Items Table -->
         <div class="items-section">
             <div class="items-header">
                 <span class="items-title" id="lblItemsTitle">Items List / विवरण सूची</span>
@@ -311,7 +304,6 @@
         </div>
     </div>
 
-    <!-- Hidden Printable Area for PDF Generation -->
     <div id="pdf-render-container">
         <div id="pdf-render-area">
             <div class="pdf-header">
@@ -419,44 +411,19 @@
         };
 
         window.onload = function() {
-            // ऑटोमैटिक बिल नंबर सेट करना
             let currentBillNo = localStorage.getItem('auto_invoice_number');
             if(!currentBillNo || isNaN(currentBillNo)) {
                 currentBillNo = 1;
             }
             document.getElementById('billNo').value = currentBillNo;
 
-            // वर्तमान दिनांक और समय
             let now = new Date();
             let formattedDateTime = now.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + " " + 
                                     now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
             document.getElementById('billDateTime').value = formattedDateTime;
 
             addItemRow();
-            detectLocationAndLanguage();
         };
-
-        function detectLocationAndLanguage() {
-            fetch('https://ipapi.co/json/')
-                .then(res => res.json())
-                .then(data => {
-                    let country = data.country_name || "Global";
-                    let langCode = (data.languages || "en").split(',')[0].substring(0, 2);
-                    document.getElementById('detectedLangText').innerText = `${country} (${langCode.toUpperCase()}) Detected`;
-
-                    if(i18n[langCode]) {
-                        document.getElementById('langSelect').value = langCode;
-                        changeLanguage(langCode);
-                    } else {
-                        document.getElementById('langSelect').value = "hi";
-                        changeLanguage("hi");
-                    }
-                })
-                .catch(() => {
-                    document.getElementById('detectedLangText').innerText = "Global Mode";
-                    changeLanguage("hi");
-                });
-        }
 
         function changeLanguage(lang) {
             const data = i18n[lang] || i18n['hi'];
@@ -546,7 +513,6 @@
             });
         }
 
-        // प्रति पंक्ति गुणा करने वाला मुख्य फ़ंक्शन (Qty x Rate = Total)
         function calculateRowTotal(element) {
             const tr = element.closest('tr');
             let qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
@@ -590,10 +556,11 @@
             return itemsList;
         }
 
+        // व्हाट्सएप भेजने की मुख्य फिक्सिंग (Fixed WhatsApp Encoding)
         function sendWhatsApp() {
-            let billNo = document.getElementById('billNo').value;
+            let billNo = document.getElementById('billNo').value || "1";
             let dateTime = document.getElementById('billDateTime').value;
-            let shop = document.getElementById('shopName').value.trim() || "OUR STORE";
+            let shop = document.getElementById('shopName').value.trim() || "PUSHPIT PHARMA";
             let shopPhone = document.getElementById('shopPhone').value.trim();
             let cust = document.getElementById('custName').value.trim() || "Valued Customer";
             let custPhone = document.getElementById('custPhone').value.trim();
@@ -601,30 +568,34 @@
 
             let items = getItemsData();
 
-            let itemsFormatted = "";
+            let text = `🧾 *--- ${shop.toUpperCase()} ---*\n`;
+            if(shopPhone) text += `📞 Contact: ${shopPhone}\n`;
+            text += `-------------------------------------------\n`;
+            text += `📌 Invoice No: #${billNo}\n`;
+            text += `📅 Date: ${dateTime}\n`;
+            text += `👤 Customer: ${cust}\n`;
+            if(custPhone) text += `📱 Phone: ${custPhone}\n`;
+            text += `-------------------------------------------\n`;
+            text += `📦 PURCHASED ITEMS:\n\n`;
+
             items.forEach(item => {
-                itemsFormatted += `${item.sn}. *${item.desc}*%0A   ↳ ${item.qty} Pcs × ₹${item.rate} = *₹${item.total}*%0A`;
+                text += `${item.sn}. *${item.desc}*\n   ↳ ${item.qty} Pcs x ₹${item.rate} = *₹${item.total}*\n`;
             });
 
-            let shopPhoneTxt = shopPhone ? `📞 Contact: ${shopPhone}%0A` : '';
-            let custPhoneTxt = custPhone ? `📱 Phone: ${custPhone}%0A` : '';
+            text += `-------------------------------------------\n`;
+            text += `💵 GRAND TOTAL: ₹${grandTotal}\n\n`;
+            text += `*THANK YOU FOR YOUR BUSINESS!* 🙏✨`;
 
-            let msg = `🧾 *--- ${shop.toUpperCase()} ---*%0A` +
-                      `${shopPhoneTxt}` +
-                      `-------------------------------------------%0A` +
-                      `📌 *Invoice No:* #${billNo}%0A` +
-                      `📅 *Date:* ${dateTime}%0A` +
-                      `👤 *Customer:* ${cust}%0A` +
-                      `${custPhoneTxt}` +
-                      `-------------------------------------------%0A` +
-                      `📦 *PURCHASED ITEMS:*%0A%0A` +
-                      `${itemsFormatted}` +
-                      `-------------------------------------------%0A` +
-                      `💵 *GRAND TOTAL:* ₹${grandTotal}%0A%0A` +
-                      `*THANK YOU FOR YOUR BUSINESS!* 🙏✨`;
+            let waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+
+            if(custPhone) {
+                let cleanPhone = custPhone.replace(/[^0-9]/g, '');
+                if(cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+                waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
+            }
 
             incrementBillNo();
-            window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+            window.open(waUrl, '_blank');
         }
 
         function generatePDF() {
@@ -691,4 +662,3 @@
     </script>
 </body>
 </html>
-
