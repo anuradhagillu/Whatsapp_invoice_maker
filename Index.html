@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Free WhatsApp Invoice & Bill Generator | मुफ़्त व्हाट्सएप बिल बनाएँ</title>
+    <meta name="description" content="10 सेकंड में अपने ग्राहकों के लिए सुंदर और पेशेवर व्हाट्सएप बिल और इनवॉइस बनाएँ।">
+    <meta name="keywords" content="WhatsApp Bill Generator, Invoice Maker, Free PDF Bill">
+    <meta name="robots" content="index, follow">
+    
+    <!-- html2pdf Library for PDF Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .card { background: #ffffff; padding: 25px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); width: 100%; max-width: 480px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h2 { color: #075e54; font-size: 24px; margin-bottom: 5px; }
+        
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 14px; }
+        input, textarea { width: 100%; padding: 10px 12px; border: 2px solid #e1e1e1; border-radius: 8px; font-size: 14px; outline: none; }
+        input:focus, textarea:focus { border-color: #25d366; }
+        
+        .btn-wa { width: 100%; background: linear-gradient(135deg, #25d366, #128c7e); color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        .btn-pdf { width: 100%; background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 8px; }
+
+        /* Preview Area for PDF */
+        #invoice-preview { display: none; padding: 20px; border: 1px solid #ddd; background: #fff; margin-top: 15px; border-radius: 10px; }
+        .logo-img { max-width: 80px; max-height: 80px; display: block; margin: 0 auto 10px auto; }
+        .inv-header { text-align: center; border-bottom: 2px solid #25d366; padding-bottom: 10px; margin-bottom: 10px; }
+        .inv-details { font-size: 14px; margin-bottom: 15px; }
+        .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .inv-table th, .inv-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
+        .inv-table th { background-color: #f2f2f2; }
+        .inv-total { text-align: right; font-weight: bold; font-size: 16px; color: #075e54; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="header">
+            <h2>🧾 WhatsApp Bill & PDF Maker</h2>
+            <p>लोगो जोड़ें और प्रोफेशनल बिल बनाएँ</p>
+        </div>
+
+        <div class="input-group">
+            <label>🖼️ दुकान का लोगो (Logo Choose करें):</label>
+            <input type="file" id="logoInput" accept="image/*" onchange="previewLogo(event)">
+        </div>
+
+        <div class="input-group">
+            <label>🏪 दुकान का नाम:</label>
+            <input type="text" id="shopName" placeholder="उदा. गुप्ता जनरल स्टोर">
+        </div>
+
+        <div class="input-group">
+            <label>👤 ग्राहक का नाम:</label>
+            <input type="text" id="custName" placeholder="उदा. राहुल शर्मा जी">
+        </div>
+
+        <div class="input-group">
+            <label>📦 सामान की जानकारी:</label>
+            <textarea id="items" rows="3" placeholder="उदा. 1. तेल - ₹140&#10;2. चावल - ₹450"></textarea>
+        </div>
+
+        <div class="input-group">
+            <label>💰 कुल राशि (Total ₹):</label>
+            <input type="number" id="total" placeholder="उदा. 590">
+        </div>
+
+        <button class="btn-wa" onclick="sendBill()">🚀 WhatsApp पर बिल भेजें</button>
+        <button class="btn-pdf" onclick="generatePDF()">📄 Logo वाला PDF डाउनलोड करें</button>
+
+        <!-- Hidden Invoice View for PDF Generation -->
+        <div id="invoice-preview">
+            <img id="logoPreview" class="logo-img" src="" style="display:none;">
+            <div class="inv-header">
+                <h3 id="pShopName"></h3>
+                <p style="font-size:12px; color:#555;">INVOICE / BILL</p>
+            </div>
+            <div class="inv-details">
+                <p><strong>Customer:</strong> <span id="pCustName"></span></p>
+                <p><strong>Date:</strong> <span id="pDate"></span></p>
+            </div>
+            <p><strong>Items:</strong></p>
+            <div id="pItems" style="white-space: pre-wrap; font-size:13px; background:#f9f9f9; padding:8px; margin:5px 0 10px 0; border-radius:5px;"></div>
+            <div class="inv-total">Total: ₹<span id="pTotal"></span></div>
+            <p style="text-align:center; font-size:10px; margin-top:15px; color:#777;">Thank you for your business!</p>
+        </div>
+    </div>
+
+    <script>
+        var logoDataUrl = "";
+
+        function previewLogo(event) {
+            var reader = new FileReader();
+            reader.onload = function(){
+                logoDataUrl = reader.result;
+                var img = document.getElementById('logoPreview');
+                img.src = logoDataUrl;
+                img.style.display = 'block';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function sendBill() {
+            var shop = document.getElementById('shopName').value;
+            var cust = document.getElementById('custName').value;
+            var items = document.getElementById('items').value;
+            var total = document.getElementById('total').value;
+
+            if(!shop || !cust || !total) {
+                alert("कृपया सभी जानकारी भरें!");
+                return;
+            }
+
+            var msg = "🧾 *— " + shop.toUpperCase() + " —*\n\n" +
+                      "नमस्ते *" + cust + "* जी,\n" +
+                      "आपकी खरीदारी का बिल नीचे दिया गया है:\n\n" +
+                      "------------------------------\n" +
+                      items + "\n" +
+                      "------------------------------\n" +
+                      "💵 *कुल राशि (Total): ₹" + total + "*\n\n" +
+                      "हमारे यहाँ से खरीदारी करने के लिए धन्यवाद! 🙏";
+
+            var url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(msg);
+            window.open(url, '_blank');
+        }
+
+        function generatePDF() {
+            var shop = document.getElementById('shopName').value;
+            var cust = document.getElementById('custName').value;
+            var items = document.getElementById('items').value;
+            var total = document.getElementById('total').value;
+
+            if(!shop || !cust || !total) {
+                alert("कृपया पहले बिल की जानकारी भरें!");
+                return;
+            }
+
+            document.getElementById('pShopName').innerText = shop;
+            document.getElementById('pCustName').innerText = cust;
+            document.getElementById('pItems').innerText = items;
+            document.getElementById('pTotal').innerText = total;
+            document.getElementById('pDate').innerText = new Date().toLocaleDateString();
+
+            var element = document.getElementById('invoice-preview');
+            element.style.display = 'block';
+
+            var opt = {
+              margin:       10,
+              filename:     shop + '_Bill.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2 },
+              jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(function(){
+                element.style.display = 'none';
+            });
+        }
+    </script>
+
+</body>
+</html>
+
