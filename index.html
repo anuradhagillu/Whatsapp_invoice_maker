@@ -1,137 +1,241 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free WhatsApp Invoice & Bill Generator</title>
-    <meta name="description" content="मुफ्त व्हाट्सएप बिल और इनवॉइस बनाएं। लोगो जोड़ें और PDF डाउनलोड करें।">
-    <meta name="keywords" content="WhatsApp Bill Generator, Invoice Maker, Free PDF Bill">
-    <meta name="robots" content="index, follow">
-
-    <!-- html2pdf Library -->
+    <title>Professional WhatsApp & PDF Invoice Maker</title>
+    <meta name="description" content="मुफ्त व्हाट्सएप बिल और इनवॉइस बनाएं। ऑटो-बिल नंबर, ऑटो-सीरियल नंबर और PDF डाउनलोड सुविधा।">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px 10px; }
-        .card { background: #ffffff; padding: 25px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); width: 100%; max-width: 500px; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h2 { color: #075e54; font-size: 24px; margin-bottom: 5px; }
-        .header p { color: #666; font-size: 13px; }
-
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 14px; }
-        input, textarea { width: 100%; padding: 10px 12px; border: 2px solid #e1e1e1; border-radius: 8px; font-size: 14px; outline: none; transition: 0.3s; }
-        input:focus, textarea:focus { border-color: #25d366; }
-
-        .btn-wa { width: 100%; background: linear-gradient(135deg, #25d366, #128c7e); color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-        .btn-pdf { width: 100%; background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-
-        /* Hidden Printable Container for Perfect PDF */
-        #pdf-render-area {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
-            width: 750px;
-            background: #ffffff;
-            padding: 40px;
-            box-sizing: border-box;
-            color: #333;
+        :root {
+            --primary: #075e54;
+            --primary-dark: #054840;
+            --secondary: #128c7e;
+            --accent: #25d366;
+            --bg-grad: linear-gradient(135deg, #0d1b2a, #1b263b, #415a77);
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
         }
 
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #25d366; padding-bottom: 15px; margin-bottom: 20px; }
-        .pdf-logo { max-width: 120px; max-height: 80px; object-fit: contain; }
-        .pdf-title { text-align: right; }
-        .pdf-title h1 { color: #075e54; font-size: 28px; margin: 0; }
-        .pdf-title p { color: #666; font-size: 14px; margin: 0; }
-
-        .pdf-details { margin-bottom: 25px; font-size: 15px; line-height: 1.6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body { background: var(--bg-grad); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px 10px; }
         
-        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .pdf-table th, .pdf-table td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; font-size: 14px; }
-        .pdf-table th { background-color: #f2f2f2; color: #075e54; }
+        .card { background: var(--card-bg); padding: 30px 25px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 650px; }
+        
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 3px solid #f1f5f9; padding-bottom: 15px; }
+        .header h2 { color: var(--primary); font-size: 28px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
+        .header p { color: var(--text-muted); font-size: 14px; font-weight: 600; }
 
-        .pdf-total { text-align: right; font-size: 18px; font-weight: bold; color: #075e54; margin-top: 15px; }
-        .pdf-footer { margin-top: 40px; text-align: center; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        input, textarea { width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; font-weight: 500; color: #334155; background-color: #f8fafc; outline: none; transition: all 0.2s ease; }
+        input:focus, textarea:focus { border-color: var(--accent); background-color: #ffffff; box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.15); }
+
+        /* Items Table in Form */
+        .items-section { margin-top: 20px; margin-bottom: 20px; }
+        .items-section-title { font-weight: 900; color: var(--text-dark); font-size: 15px; text-transform: uppercase; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .item-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .item-table th { background: #f1f5f9; color: var(--text-dark); font-weight: 800; text-transform: uppercase; font-size: 12px; padding: 10px; text-align: left; border-radius: 6px; }
+        .item-table td { padding: 6px 4px; }
+        
+        .item-row input { padding: 8px 10px; font-size: 13px; }
+        .btn-remove { background: #ef4444; color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-add { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .btn-add:hover { background: #0369a1; }
+
+        .total-box { background: #ecfdf5; border: 2px solid #a7f3d0; border-radius: 12px; padding: 15px; text-align: right; margin-bottom: 20px; }
+        .total-box label { color: #065f46; font-size: 16px; font-weight: 900; margin: 0; }
+        .total-box .amount { font-size: 24px; font-weight: 900; color: #047857; margin-top: 4px; }
+
+        /* Action Buttons */
+        .btn-wa { width: 100%; background: linear-gradient(135deg, #25d366, #128c7e); color: white; border: none; padding: 14px; font-size: 16px; font-weight: 900; letter-spacing: 0.5px; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 18px rgba(37, 211, 102, 0.3); transition: 0.2s; }
+        .btn-pdf { width: 100%; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 14px; font-size: 16px; font-weight: 900; letter-spacing: 0.5px; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 18px rgba(2, 132, 199, 0.3); transition: 0.2s; }
+        .btn-wa:active, .btn-pdf:active { transform: scale(0.98); }
+
+        /* Hidden Printable Area for PDF */
+        #pdf-render-wrapper { position: fixed; top: -9999px; left: -9999px; width: 750px; }
+        #pdf-render-area { background: #ffffff; padding: 40px; box-sizing: border-box; color: #1e293b; }
+
+        /* PDF Colorful Styling */
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #075e54; padding-bottom: 20px; margin-bottom: 20px; }
+        .pdf-logo { max-width: 140px; max-height: 80px; object-fit: contain; }
+        .pdf-title-block { text-align: right; }
+        .pdf-title-block h1 { color: #075e54; font-size: 32px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .pdf-meta { background: #f8fafc; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 800; color: #475569; margin-top: 6px; display: inline-block; border: 1px solid #e2e8f0; }
+
+        .pdf-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; background: #f1f5f9; padding: 15px; border-radius: 10px; border-left: 5px solid #128c7e; }
+        .pdf-info-box h3 { color: #075e54; font-size: 14px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        .pdf-info-box p { font-size: 14px; color: #334155; font-weight: 600; margin: 2px 0; }
+
+        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .pdf-table th { background: linear-gradient(135deg, #075e54, #128c7e); color: #ffffff; padding: 12px 10px; text-align: left; font-size: 13px; font-weight: 900; text-transform: uppercase; }
+        .pdf-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; font-size: 13px; color: #334155; font-weight: 600; }
+        .pdf-table tr:nth-child(even) { background-color: #f8fafc; }
+
+        .pdf-summary { display: flex; justify-content: flex-end; margin-bottom: 30px; }
+        .pdf-total-card { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #10b981; padding: 15px 25px; border-radius: 10px; text-align: right; }
+        .pdf-total-card span { display: block; font-size: 13px; font-weight: 900; color: #065f46; text-transform: uppercase; }
+        .pdf-total-card h2 { font-size: 26px; font-weight: 900; color: #047857; margin: 0; }
+
+        .pdf-footer { text-align: center; font-size: 14px; color: #075e54; font-weight: 900; border-top: 2px dashed #cbd5e0; padding-top: 20px; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <div class="header">
-            <h2>📲 WhatsApp Bill & PDF Maker</h2>
-            <p>लोगो जोड़ें और प्रोफेशनल बिल बनाएं</p>
+            <h2>📲 Premium WhatsApp & PDF Invoice</h2>
+            <p>ऑटो-बिल नंबर, ऑटो-सीरियल नंबर और लोगो सपोर्ट</p>
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group">
+                <label>🧾 इनवॉइस/बिल नंबर:</label>
+                <input type="text" id="billNo" readonly style="background:#e2e8f0; font-weight:bold; color:#0f172a;">
+            </div>
+            <div class="input-group">
+                <label>📅 दिनांक व समय:</label>
+                <input type="text" id="billDateTime" readonly style="background:#e2e8f0; font-weight:bold; color:#0f172a;">
+            </div>
         </div>
 
         <div class="input-group">
-            <label>🖼️ दुकान/बिज़नेस का लोगो (Logo Choose करें):</label>
+            <label>🖼️ दुकान का लोगो (Optional - ऐच्छिक):</label>
             <input type="file" id="logoInput" accept="image/*" onchange="loadLogo(event)">
         </div>
 
-        <div class="input-group">
-            <label>🏪 दुकान का नाम:</label>
-            <input type="text" id="shopName" placeholder="उदा. गुप्ता जनरल स्टोर">
+        <div class="form-grid">
+            <div class="input-group">
+                <label>🏪 दुकान का नाम:</label>
+                <input type="text" id="shopName" placeholder="उदा. PUSHPIT PHARMA">
+            </div>
+            <div class="input-group">
+                <label>📞 दुकान का नंबर (Optional):</label>
+                <input type="text" id="shopPhone" placeholder="उदा. 9876543210">
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>👤 ग्राहक का नाम:</label>
-            <input type="text" id="custName" placeholder="उदा. राहुल शर्मा जी">
+        <div class="form-grid">
+            <div class="input-group">
+                <label>👤 ग्राहक का नाम:</label>
+                <input type="text" id="custName" placeholder="उदा. Amit ji">
+            </div>
+            <div class="input-group">
+                <label>📱 ग्राहक का मोबाइल नंबर:</label>
+                <input type="text" id="custPhone" placeholder="उदा. 9123456789">
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>📦 सामान की जानकारी (Items):</label>
-            <textarea id="items" rows="3" placeholder="उदा. 1 kg rice - 60&#10;2L oil - 240"></textarea>
+        <!-- Dynamic Items Table -->
+        <div class="items-section">
+            <div class="items-section-title">
+                <span>📦 सामान की जानकारी (Items List)</span>
+                <button type="button" class="btn-add" onclick="addItemRow()">+ नया सामान जोड़ें</button>
+            </div>
+
+            <table class="item-table">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">S.N.</th>
+                        <th style="width: 45%;">आइटम / विवरण</th>
+                        <th style="width: 20%;">मात्रा (Qty)</th>
+                        <th style="width: 20%;">मूल्य (₹)</th>
+                        <th style="width: 5%;"></th>
+                    </tr>
+                </thead>
+                <tbody id="itemRowsContainer">
+                    <!-- Dynamic Rows Will Appear Here -->
+                </tbody>
+            </table>
         </div>
 
-        <div class="input-group">
-            <label>💰 कुल राशि (Total Amount ₹):</label>
-            <input type="number" id="total" placeholder="उदा. 300">
+        <div class="total-box">
+            <label>💰 कुल राशि (TOTAL AMOUNT):</label>
+            <div class="amount">₹<span id="displayTotal">0</span></div>
         </div>
 
-        <button class="btn-wa" onclick="sendWhatsApp()">WhatsApp पर भेजें</button>
+        <button class="btn-wa" onclick="sendWhatsApp()">💬 WhatsApp पर भेजें</button>
         <button class="btn-pdf" onclick="generatePDF()">📄 PDF डाउनलोड करें</button>
     </div>
 
-    <!-- HTML Hidden Container for PDF Rendering -->
-    <div id="pdf-render-area">
-        <div class="pdf-header">
-            <div>
-                <img id="pdf-logo-img" class="pdf-logo" src="" style="display:none;" alt="Logo">
+    <!-- Printable Area for PDF -->
+    <div id="pdf-render-wrapper">
+        <div id="pdf-render-area">
+            <div class="pdf-header">
+                <div>
+                    <img id="pdf-logo-img" class="pdf-logo" src="" style="display:none;" alt="Logo">
+                </div>
+                <div class="pdf-title-block">
+                    <h1 id="pdf-shop-title">INVOICE</h1>
+                    <div class="pdf-meta">
+                        INVOICE NO: <span id="pdf-bill-no"></span> | DATE: <span id="pdf-date-time"></span>
+                    </div>
+                </div>
             </div>
-            <div class="pdf-title">
-                <h1 id="pdf-shop-title">INVOICE</h1>
-                <p>Date: <span id="pdf-date"></span></p>
+
+            <div class="pdf-info-grid">
+                <div class="pdf-info-box">
+                    <h3>🏪 दुकान का विवरण (Billed By):</h3>
+                    <p><strong id="pdf-shop-name-disp"></strong></p>
+                    <p id="pdf-shop-phone-row" style="display:none;">📞 <span id="pdf-shop-phone-disp"></span></p>
+                </div>
+                <div class="pdf-info-box">
+                    <h3>👤 ग्राहक का विवरण (Billed To):</h3>
+                    <p>नाम: <strong id="pdf-cust-name-disp"></strong></p>
+                    <p id="pdf-cust-phone-row" style="display:none;">मोबाइल: <span id="pdf-cust-phone-disp"></span></p>
+                </div>
             </div>
-        </div>
 
-        <div class="pdf-details">
-            <strong>Customer Name:</strong> <span id="pdf-cust-name"></span>
-        </div>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">क्र.सं.</th>
+                        <th style="width: 50%;">सामान का नाम (Particulars)</th>
+                        <th style="width: 20%;">मात्रा (Qty)</th>
+                        <th style="width: 20%;">मूल्य (Amount)</th>
+                    </tr>
+                </thead>
+                <tbody id="pdf-table-body">
+                </tbody>
+            </table>
 
-        <table class="pdf-table">
-            <thead>
-                <tr>
-                    <th>Items / Particulars</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="pdf-items-list" style="white-space: pre-line;"></td>
-                </tr>
-            </tbody>
-        </table>
+            <div class="pdf-summary">
+                <div class="pdf-total-card">
+                    <span>कुल राशि (TOTAL AMOUNT)</span>
+                    <h2>₹<span id="pdf-total-amt">0</span></h2>
+                </div>
+            </div>
 
-        <div class="pdf-total">
-            Total Amount: ₹<span id="pdf-total-amt"></span>
-        </div>
-
-        <div class="pdf-footer">
-            Thank you for your business!
+            <div class="pdf-footer">
+                THANK YOU FOR YOUR BUSINESS! VISIT AGAIN 🙏✨
+            </div>
         </div>
     </div>
 
     <script>
         let logoBase64 = "";
+
+        // Auto Generate Bill Number & Date-Time on Page Load
+        window.onload = function() {
+            let randomNo = "INV-" + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('billNo').value = randomNo;
+
+            let now = new Date();
+            let formattedDateTime = now.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + " " + 
+                                    now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+            document.getElementById('billDateTime').value = formattedDateTime;
+
+            // Add First Default Item Row
+            addItemRow();
+        };
 
         function loadLogo(event) {
             const reader = new FileReader();
@@ -141,42 +245,167 @@
                 imgElement.src = logoBase64;
                 imgElement.style.display = 'block';
             };
-            if(event.target.files[0]) {
+            if(event.target.files && event.target.files[0]) {
                 reader.readAsDataURL(event.target.files[0]);
+            } else {
+                logoBase64 = "";
+                document.getElementById('pdf-logo-img').style.display = 'none';
             }
         }
 
-        function sendWhatsApp() {
-            let shop = document.getElementById('shopName').value || "Our Shop";
-            let cust = document.getElementById('custName').value || "Customer";
-            let items = document.getElementById('items').value || "N/A";
-            let total = document.getElementById('total').value || "0";
+        function addItemRow() {
+            const container = document.getElementById('itemRowsContainer');
+            const rowCount = container.children.length + 1;
 
-            let msg = `*${shop}*%0A%0A*Customer:* ${cust}%0A*Items:*%0A${items}%0A%0A*Total Amount:* ₹${total}%0A%0AThank you!`;
+            const tr = document.createElement('tr');
+            tr.className = 'item-row';
+            tr.innerHTML = `
+                <td style="font-weight:bold; text-align:center;" class="sn-cell">${rowCount}</td>
+                <td><input type="text" class="item-desc" placeholder="सामान का नाम" oninput="calculateTotal()"></td>
+                <td><input type="text" class="item-qty" placeholder="1 kg/nos" oninput="calculateTotal()"></td>
+                <td><input type="number" class="item-price" placeholder="0" oninput="calculateTotal()"></td>
+                <td><button type="button" class="btn-remove" onclick="removeItemRow(this)">×</button></td>
+            `;
+            container.appendChild(tr);
+            updateSerialNumbers();
+        }
+
+        function removeItemRow(btn) {
+            const container = document.getElementById('itemRowsContainer');
+            if(container.children.length > 1) {
+                btn.closest('tr').remove();
+                updateSerialNumbers();
+                calculateTotal();
+            }
+        }
+
+        function updateSerialNumbers() {
+            const rows = document.querySelectorAll('#itemRowsContainer tr');
+            rows.forEach((row, index) => {
+                row.querySelector('.sn-cell').innerText = index + 1;
+            });
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            const prices = document.querySelectorAll('.item-price');
+            prices.forEach(input => {
+                let val = parseFloat(input.value) || 0;
+                total += val;
+            });
+            document.getElementById('displayTotal').innerText = total;
+        }
+
+        function getItemsData() {
+            const rows = document.querySelectorAll('#itemRowsContainer tr');
+            let itemsList = [];
+            rows.forEach((row, index) => {
+                let desc = row.querySelector('.item-desc').value.trim();
+                let qty = row.querySelector('.item-qty').value.trim();
+                let price = row.querySelector('.item-price').value.trim();
+
+                if(desc || price) {
+                    itemsList.push({
+                        sn: index + 1,
+                        desc: desc || "N/A",
+                        qty: qty || "1",
+                        price: price || "0"
+                    });
+                }
+            });
+            return itemsList;
+        }
+
+        function sendWhatsApp() {
+            let billNo = document.getElementById('billNo').value;
+            let dateTime = document.getElementById('billDateTime').value;
+            let shop = document.getElementById('shopName').value.trim() || "OUR SHOP";
+            let shopPhone = document.getElementById('shopPhone').value.trim();
+            let cust = document.getElementById('custName').value.trim() || "Customer";
+            let custPhone = document.getElementById('custPhone').value.trim();
+            let total = document.getElementById('displayTotal').innerText;
+
+            let items = getItemsData();
+
+            let itemsFormatted = "";
+            items.forEach(item => {
+                itemsFormatted += `${item.sn}. *${item.desc}* (${item.qty}) - ₹${item.price}%0A`;
+            });
+
+            let shopPhoneTxt = shopPhone ? `📞 Contact: ${shopPhone}%0A` : '';
+            let custPhoneTxt = custPhone ? `📱 Mobile: ${custPhone}%0A` : '';
+
+            let msg = `🧾 *--- ${shop.toUpperCase()} ---*%0A` +
+                      `${shopPhoneTxt}` +
+                      `-------------------------------------------%0A` +
+                      `📌 *Bill No:* ${billNo}%0A` +
+                      `📅 *Date/Time:* ${dateTime}%0A` +
+                      `👤 *Customer:* ${cust}%0A` +
+                      `${custPhoneTxt}` +
+                      `-------------------------------------------%0A` +
+                      `📦 *ITEMS PURCHASED:*%0A%0A` +
+                      `${itemsFormatted}` +
+                      `-------------------------------------------%0A` +
+                      `💵 *TOTAL AMOUNT:* ₹${total}%0A%0A` +
+                      `*THANK YOU FOR YOUR BUSINESS! VISIT AGAIN* 🙏✨`;
+
             window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
         }
 
         function generatePDF() {
-            let shop = document.getElementById('shopName').value || "INVOICE";
-            let cust = document.getElementById('custName').value || "N/A";
-            let items = document.getElementById('items').value || "N/A";
-            let total = document.getElementById('total').value || "0";
+            let billNo = document.getElementById('billNo').value;
+            let dateTime = document.getElementById('billDateTime').value;
+            let shop = document.getElementById('shopName').value.trim() || "INVOICE";
+            let shopPhone = document.getElementById('shopPhone').value.trim();
+            let cust = document.getElementById('custName').value.trim() || "N/A";
+            let custPhone = document.getElementById('custPhone').value.trim();
+            let total = document.getElementById('displayTotal').innerText;
 
-            document.getElementById('pdf-shop-title').innerText = shop;
-            document.getElementById('pdf-cust-name').innerText = cust;
-            document.getElementById('pdf-items-list').innerText = items;
+            document.getElementById('pdf-shop-title').innerText = shop.toUpperCase();
+            document.getElementById('pdf-bill-no').innerText = billNo;
+            document.getElementById('pdf-date-time').innerText = dateTime;
+
+            document.getElementById('pdf-shop-name-disp').innerText = shop;
+            if(shopPhone) {
+                document.getElementById('pdf-shop-phone-disp').innerText = shopPhone;
+                document.getElementById('pdf-shop-phone-row').style.display = 'block';
+            } else {
+                document.getElementById('pdf-shop-phone-row').style.display = 'none';
+            }
+
+            document.getElementById('pdf-cust-name-disp').innerText = cust;
+            if(custPhone) {
+                document.getElementById('pdf-cust-phone-disp').innerText = custPhone;
+                document.getElementById('pdf-cust-phone-row').style.display = 'block';
+            } else {
+                document.getElementById('pdf-cust-phone-row').style.display = 'none';
+            }
+
+            // Fill PDF Table Rows
+            let items = getItemsData();
+            let tbody = document.getElementById('pdf-table-body');
+            tbody.innerHTML = "";
+
+            items.forEach(item => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align:center; font-weight:bold;">${item.sn}</td>
+                    <td style="font-weight:bold;">${item.desc}</td>
+                    <td>${item.qty}</td>
+                    <td style="font-weight:bold;">₹${item.price}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
             document.getElementById('pdf-total-amt').innerText = total;
-
-            const today = new Date();
-            document.getElementById('pdf-date').innerText = today.toLocaleDateString('en-IN');
 
             const element = document.getElementById('pdf-render-area');
 
             const opt = {
-                margin:       [10, 10, 10, 10],
-                filename:     `${shop.replace(/\s+/g, '_')}_Invoice.pdf`,
+                margin:       [8, 8, 8, 8],
+                filename:     `${shop.replace(/\s+/g, '_')}_${billNo}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
